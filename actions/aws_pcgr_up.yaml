@@ -13,6 +13,6 @@ parameters:
     sudo:
         immutable: true
     hosts:
-		description: "Ansible AWS hosts"
-		type: string
-		required: true
+        description: "Ansible AWS hosts"
+        type: string
+        required: true
