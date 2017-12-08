@@ -1,0 +1,17 @@
+---
+name: chatops.pcgr_submit_sample
+action_ref: st2_chatops_aliases.pcgr_submit_sample
+description: Send a VCF sample to a PCGR instance for processing 
+formats:
+  - display: "status <hosts>"
+    representation:
+      - "status {{ hosts }}"
+      - "ping {{ hosts }}"
+result:
+  format: |
+    VCF sample `{{ execution.parameters.vcf_file }}` submitted : {~}
+    ```{{ execution.result.stdout }}```
+  extra:
+    slack:
+      color: "{% if execution.result.succeeded %}good{% else %}danger{% endif %}"
+      footer: "{{ execution.id }}"

@@ -1,0 +1,18 @@
+---
+description: "Tears down a Personal Cancer Gene Reporter instance on AWS"
+runner_type: "local-shell-cmd"
+enabled: true
+entry_point: ""
+name: pcgr_aws_down
+parameters:
+    cmd:
+        required: true
+        type: string
+        immutable: true
+        default: "/opt/stackstorm/virtualenvs/ansible/bin/ansible-playbook /opt/stackstorm/packs/${ST2_ACTION_PACK_NAME}/playbooks/aws_pcgr_down.yaml"
+    sudo:
+        immutable: true
+    hosts:
+		description: "Ansible AWS hosts"
+		type: string
+		required: true

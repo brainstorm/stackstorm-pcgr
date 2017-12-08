@@ -1,0 +1,16 @@
+---
+ref: pcgr
+name : pcgr 
+description : st2 pack with the Personal Cancer Gene Reporter bioinformatics software. 
+keywords:
+  - aws
+  - amazon web services
+  - amazon
+  - bioinformatics
+  - science 
+
+version : 0.0.1
+author : University of Melbourne Centre for Cancer Research
+email : roman.vallsguimera@unimelb.edu.au
+contributors:
+  - Roman Valls Guimera <brainstorm@nopcode.org>
