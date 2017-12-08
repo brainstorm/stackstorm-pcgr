@@ -9,7 +9,7 @@ parameters:
         required: true
         type: string
         immutable: true
-        default: "/opt/stackstorm/virtualenvs/ansible/bin/ansible-playbook /opt/stackstorm/packs/${ST2_ACTION_PACK_NAME}/playbooks/aws_pcgr_up.yaml --extra-vars='instance_size=m4.large'"
+        default: "/opt/stackstorm/virtualenvs/ansible/bin/ansible-playbook /opt/stackstorm/packs/${ST2_ACTION_PACK_NAME}/playbooks/aws_pcgr_up.yaml --extra-vars='hosts={{hosts|replace('http://', '')}}'"
     sudo:
         immutable: true
     hosts:
