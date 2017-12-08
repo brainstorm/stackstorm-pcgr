@@ -1,0 +1,153 @@
+---
+- name: Debug mount devices
+  debug:
+    msg: "{{ ansible_mounts }}"
+
+- name: Setup hostname to avoid unable to resolve errors
+  hostname:
+    name: localhost
+
+- name: Create "{{ pcgr_mount }}" 
+  become: true
+  file:
+    path: "{{ pcgr_mount }}"
+    state: directory
+    recurse: yes
+    owner: ubuntu
+    group: ubuntu
+    mode: 0755
+
+- name: "Check which of {{ aws.volume_device }} or {{ ostack.volume_device }} we have present"
+  stat: path={{ item }}
+  with_items: 
+      - "{{ aws.volume_device }}"
+      - "{{ ostack.volume_device }}"
+  register: volume_device
+
+- name: Debug mount devices
+  debug:
+    msg: "{{ item.stat.exists }}"
+  with_items: "{{ volume_device.results }}"
+
+- name: Create ext4 filesystem if not present on attached volume
+  filesystem:
+    fstype: ext4
+    dev: "{{ item.item }}"
+  with_items: "{{ volume_device.results }}"
+  when:
+      - not item | skipped
+      - item.stat.exists
+
+- name: Mount local work volume
+  mount: 
+    path: "{{ pcgr_mount }}"
+    src: "{{ item.item }}"
+    fstype: ext4 
+    state: mounted
+  with_items: "{{ volume_device.results }}"
+  when:
+      - not item | skipped
+      - item.stat.exists
+
+# Does not work since the lock file never gets removed, actually
+#- name: Wait for automatic system updates to finish first
+#  wait_for:
+#    path: /var/lib/dpkg/lock
+#    state: absent
+#    timeout: 600
+
+# https://github.com/ansible/ansible/issues/25414 ... unreliable :/
+#- name: Wait for automatic system updates
+#  become: true
+#  become_user: root
+#  shell: while fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 1; done;
+
+# Trying target unattended-upgrades instead? 
+- name: Wait for automatic system updates
+  shell: while pgrep unattended; do sleep 10; done;
+
+- name: Update system and install basics
+  become: true
+  become_user: root
+  package: 
+    name: "{{ item }}"
+    state: installed
+    update_cache: yes
+  with_items:
+      - git
+      - unzip
+      - wget
+      - tar
+      - gzip
+      - bzip2
+      - docker.io
+      - python-docker
+      - tabix
+      - nfs-common
+      - python-pip
+      - python3-pip
+
+- name: Make sure docker-py is installed
+  pip:
+    name: docker-py
+    state: latest
+
+- name: Add SSH keys for UMCCR team
+  authorized_key:
+    user: ubuntu
+    state: present
+    key: "{{ lookup('file', item) }}"
+  with_fileglob: "files/public_keys/*.pub"
+
+- name: Add user to docker group
+  become: true
+  user: name=ubuntu groups=docker append=yes
+
+- name: Pull PCGR docker image for PCGR "{{ pcgr_release }}"
+  become: true
+  docker_image:
+    name: sigven/pcgr
+    state: present
+    tag: "{{ pcgr_release }}"
+
+- name: Download and unpack PCGR software, release "{{ pcgr_release }}"
+  unarchive:
+    src: https://github.com/sigven/pcgr/archive/{{ pcgr_release }}.tar.gz
+    creates: "{{ pcgr_mount }}/pcgr-{{ pcgr_release }}"
+    dest: "{{ pcgr_mount }}"
+    remote_src: True
+
+- name: Give ubuntu rights to write on "{{ pcgr_mount }}/pcgr-{{ pcgr_release }}"
+  become: true
+  file:
+    path: "{{ pcgr_mount }}/pcgr-{{ pcgr_release }}"
+    state: directory
+    recurse: yes
+    owner: ubuntu
+    group: ubuntu
+    mode: 0755
+
+- name: Creating default PCGR output directory on "{{ pcgr_mount }}/pcgr-{{ pcgr_release }}/output"
+  become: true
+  file:
+    path: "{{ pcgr_mount }}/pcgr-{{ pcgr_release }}/output"
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: 0755
+
+- name: Refresh group info
+  become: false
+  command: newgrp docker
+
+- name: "Symlink latest version to {{ pcgr_mount }}/pcgr"
+  file:
+      src: "{{ pcgr_mount }}/pcgr-{{ pcgr_release }}"
+      dest: "{{ pcgr_mount }}/pcgr"
+      state: link
+
+- name: Setup local firewall
+  ufw:
+    state: enabled
+    rule: allow
+    name: OpenSSH
