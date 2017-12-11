@@ -9,10 +9,6 @@ parameters:
         required: true
         type: string
         immutable: true
-        default: "/opt/stackstorm/virtualenvs/ansible/bin/ansible-playbook /opt/stackstorm/packs/${ST2_ACTION_PACK_NAME}/ansible/ansible/aws.yaml -i localhost,"
+        default: "/opt/stackstorm/virtualenvs/ansible/bin/ansible-playbook /opt/stackstorm/packs/${ST2_ACTION_PACK_NAME}/ansible/ansible/aws.yml -i localhost,"
     sudo:
         immutable: true
-    hosts:
-        description: "Ansible AWS hosts"
-        type: string
-        required: true
