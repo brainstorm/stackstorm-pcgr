@@ -3,7 +3,7 @@ description: "Tears down a Personal Cancer Gene Reporter instance on AWS"
 runner_type: "local-shell-cmd"
 enabled: true
 entry_point: ""
-name: pcgr_aws_down
+name: aws_down
 parameters:
     cmd:
         required: true
