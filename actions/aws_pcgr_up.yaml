@@ -1,5 +1,6 @@
+---
 description: "Instantiates a Personal Cancer Gene Reporter instance on AWS"
-runner_type: "local-shell-cmd"
+runner_type: "python-script"
 enabled: true
 entry_point: ""
 name: aws_up
@@ -10,6 +11,6 @@ parameters:
         required: true
         type: string
         immutable: true
-        default: "/opt/stackstorm/virtualenvs/pcgr/bin/ansible-playbook /opt/stackstorm/packs/${ST2_ACTION_PACK_NAME}/ansible/ansible/aws.yml --extra-vars 'ansible_python_interpreter=/opt/stackstorm/virtualenvs/${ST2_ACTION_PACK_NAME}/bin/python'"
+        default: "ansible-playbook /opt/stackstorm/packs/${ST2_ACTION_PACK_NAME}/ansible/ansible/aws.yml"
     sudo:
         immutable: true
