@@ -12,5 +12,3 @@ parameters:
         type: string
         immutable: true
         default: "ansible-playbook /opt/stackstorm/packs/${ST2_ACTION_PACK_NAME}/ansible/ansible/aws.yml"
-    sudo:
-        immutable: true
