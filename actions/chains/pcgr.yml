@@ -1,15 +1,10 @@
 ---
 chain:
   -
-    name: "uuid"
-    ref: "core.uuid"
-    on-success: "up"
-
-  -
     name: "up"
     ref: "pcgr.aws_up"
     parameters:
-      uuid: {{ uuid.stdout }}
+      uuid: {{ execution_id }}
     notify:
       on-success:
         routes:
@@ -25,7 +20,7 @@ chain:
     name: "submit_vcf"
     ref: "pcgr.process"
     parameters:
-      uuid: {{ uuid.stdout }}
+      uuid: {{ execution_id }}
       input: {{ chain_input }}
       output: {{ chain_output }}
     notify:
@@ -41,6 +36,8 @@ chain:
     -
       name: "down"
       ref: "pcgr.aws_down"
+      parameters:
+        uuid: {{ execution_id }}
       notify:
         on-success:
           routes:
