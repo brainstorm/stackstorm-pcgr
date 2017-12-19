@@ -1,0 +1,56 @@
+---
+chain:
+  -
+    name: "uuid"
+    ref: "core.uuid"
+    on-success: "up"
+
+  -
+    name: "up"
+    ref: "pcgr.aws_up"
+    parameters:
+      uuid: {{ uuid.stdout }}
+    notify:
+      on-success:
+        routes:
+          - chatops
+        message: "AWS instance up for PCGR"
+      on-failure:
+        routes:
+          - chatops
+        message: "Something went wrong instantiating AWS"
+    on-success: "submit_vcf"
+
+  -
+    name: "submit_vcf"
+    ref: "pcgr.process"
+    parameters:
+      uuid: {{ uuid.stdout }}
+      input: {{ chain_input }}
+      output: {{ chain_output }}
+    notify:
+      on-success:
+        routes:
+          - chatops
+        message: "PCGR processing done"
+      on-failure:
+        routes:
+          - chatops
+        message: "PCGR processing failed"
+
+    -
+      name: "down"
+      ref: "pcgr.aws_down"
+      notify:
+        on-success:
+          routes:
+            - chatops
+          message: "AWS instance up for PCGR"
+        on-failure:
+          routes:
+            - chatops
+          message: "Something went wrong instantiating AWS"
+      on-success: "submit_vcf"
+
+
+default: "up"
