@@ -17,6 +17,7 @@ parameters:
     description: PCGR workflow results
     required: true
     type: string
+    default: 's3://pcgr-results'
 
 
 

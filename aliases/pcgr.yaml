@@ -1,14 +1,15 @@
 ---
-name: pcgr.submit_sample
-action_ref: pcgr.submit_sample
-description: Send a VCF sample to a PCGR instance for processing 
+name: submit
+pack: pcgr
+action_ref: pcgr.up
+description: Send a VCF sample to a PCGR instance for processing
 formats:
-  - display: "pcgr submit <vcf_url>"
+  - display: "pcgr submit <vcf_input>"
     representation:
-      - "pcgr submit {{ vcf_url }}"
+      - "pcgr submit {{ chain_input }}"
 result:
   format: |
-    VCF sample `{{ execution.parameters.vcf_file }}` submitted : {~}
+    VCF sample `{{ execution.parameters.chain_input }}` submitted : {~}
     ```{{ execution.result.stdout }}```
   extra:
     slack:

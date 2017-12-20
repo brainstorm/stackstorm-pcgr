@@ -2,9 +2,11 @@
 chain:
   -
     name: "up"
-    ref: "pcgr.aws_up"
+    #ref: "pcgr.aws_up"
+    ref: core.local
     parameters:
       uuid: {{ execution_id }}
+      cmd: "echo 'Instance up' {{ execution_id }}"
     notify:
       on-success:
         routes:

@@ -12,4 +12,5 @@ parameters:
         required: true
         type: string
         immutable: true
-        default: "ansible-playbook /opt/stackstorm/packs/${ST2_ACTION_PACK_NAME}/ansible/ansible/aws.yml"
+        default: "echo 'AWS should be up by now'"
+        #default: "ansible-playbook /opt/stackstorm/packs/${ST2_ACTION_PACK_NAME}/ansible/ansible/aws.yml"

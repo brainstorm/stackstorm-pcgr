@@ -2,9 +2,10 @@
 #Amazon
 aws:
     instance_type: m4.large
-    spot_price: null
+    spot_price: 0.05
     keypair: mba_wwcrc
-    image_id: ami-43c12e21
+#    image_id: ami-43c12e21 # Artsy Ubuntu Linux
+    image_id: ami-5921d73b # PCGR v0.5.3
     security_group: default
     region: ap-southeast-2
     zone: ap-southeast-2a
