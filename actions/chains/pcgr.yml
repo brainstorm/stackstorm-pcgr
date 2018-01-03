@@ -1,12 +1,11 @@
 ---
 chain:
-  -
-    name: "up"
-    #ref: "pcgr.aws_up"
-    ref: core.local
+  - name: "up"
+    # ref: pcgr.aws_up
+    ref: "core.local"
     parameters:
-      uuid: {{ execution_id }}
-      cmd: "echo 'Instance up' {{ execution_id }}"
+      #uuid: "{{ action_context.parent.execution_id }}"
+      cmd: "echo 'Instance up' {{ action_context.parent.execution_id }}"
     notify:
       on-success:
         routes:
@@ -17,14 +16,14 @@ chain:
           - chatops
         message: "Something went wrong instantiating AWS"
     on-success: "submit_vcf"
-
-  -
-    name: "submit_vcf"
-    ref: "pcgr.process"
+  - name: "submit_vcf"
+    #ref: "pcgr.process"
+    ref: "core.local"
     parameters:
-      uuid: {{ execution_id }}
-      input: {{ chain_input }}
-      output: {{ chain_output }}
+      cmd: "echo 'In process' {{ action_context.parent.execution_id }} {{ chain_input }} {{ chain_output }}"
+      #uuid: "{{ action_context.parent.execution_id }}"
+      #input: "{{ chain_input }}"
+      #output: "{{ chain_output }}"
     notify:
       on-success:
         routes:
@@ -34,22 +33,19 @@ chain:
         routes:
           - chatops
         message: "PCGR processing failed"
-
-    -
-      name: "down"
-      ref: "pcgr.aws_down"
-      parameters:
-        uuid: {{ execution_id }}
-      notify:
-        on-success:
-          routes:
-            - chatops
-          message: "AWS instance up for PCGR"
-        on-failure:
-          routes:
-            - chatops
-          message: "Something went wrong instantiating AWS"
-      on-success: "submit_vcf"
-
+#  - name: "down"
+#    ref: "pcgr.aws_down"
+#    parameters:
+#      #uuid: "{{ action_context.parent.execution_id }}"
+#    notify:
+#      on-success:
+#        routes:
+#          - chatops
+#        message: "AWS instance up for PCGR"
+#      on-failure:
+#        routes:
+#          - chatops
+#        message: "Something went wrong instantiating AWS"
+#    on-success: "submit_vcf"
 
 default: "up"
