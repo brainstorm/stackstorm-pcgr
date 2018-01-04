@@ -13,4 +13,6 @@ parameters:
         type: string
         immutable: true
         default: "echo 'AWS should be up by now'"
-        #default: "ansible-playbook /opt/stackstorm/packs/${ST2_ACTION_PACK_NAME}/ansible/ansible/aws.yml"
+# XXX: ec2_tag_value should contain execution_id? How to persist that between aws_up and aws_down?
+#        default: "ansible-playbook /opt/stackstorm/packs/${ST2_ACTION_PACK_NAME}/ansible/ansible/aws.yml --extra-vars='{{ ec2_tag_name }}={{ ec2_tag_value }}'"
+#        default: "ansible-playbook aws.yml --extra-vars='{{ ec2_tag_name }}={{ ec2_tag_value }}'"

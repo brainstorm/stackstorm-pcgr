@@ -10,6 +10,7 @@
          instance_profile_name: "{{ aws.instance_profile_name }}"
          instance_tags:
              Name: pcgr "{{ pcgr.release }}"
+             service: pcgr
              pcgr_exec_id: "{{ pcgr.execution_id }}"
          spot_price: "{{ aws.spot_price }}"
          image: "{{ aws.image_id }}"

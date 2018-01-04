@@ -5,11 +5,14 @@ enabled: true
 entry_point: ""
 name: aws_down
 parameters:
+    cwd:
+        default: "/opt/stackstorm/packs/pcgr/ansible/ansible"
     cmd:
         required: true
         type: string
         immutable: true
-        default: "/opt/stackstorm/virtualenvs/ansible/bin/ansible-playbook /opt/stackstorm/packs/${ST2_ACTION_PACK_NAME}/playbooks/aws_pcgr_down.yaml"
+        #default: "/opt/stackstorm/virtualenvs/ansible/bin/ansible-playbook /opt/stackstorm/packs/${ST2_ACTION_PACK_NAME}/playbooks/aws_pcgr_down.yaml"
+        default: "ansible-playbook aws-teardown.yml --extra-vars='{{ ec2_tag_name }}={{ ec2_tag_value }}'"
     sudo:
         immutable: true
     hosts:
