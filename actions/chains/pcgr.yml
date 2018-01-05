@@ -1,50 +1,53 @@
 ---
 chain:
   - name: "up"
-    # ref: pcgr.aws_up
-    ref: "core.local"
+    ref: ansible.playbook
     parameters:
-      #uuid: "{{ action_context.parent.execution_id }}"
-      cmd: "echo 'Instance up' {{ action_context.parent.execution_id }}"
+      playbook: "/opt/stackstorm/packs/pcgr/ansible/ansible/aws.yml"
+      extra_vars:
+           - "pcgr.execution_id={{ action_context.parent.execution_id }}"
     notify:
       on-success:
         routes:
-          - chatops
-        message: "AWS instance up for PCGR"
+          - umccr_slack
+        message: "PCGR AWS instance up and running"
       on-failure:
         routes:
-          - chatops
-        message: "Something went wrong instantiating AWS"
+          - umccr_slack
+        message: "Something went wrong instantiating PCGR on AWS"
     on-success: "submit_vcf"
   - name: "submit_vcf"
-    #ref: "pcgr.process"
-    ref: "core.local"
+    ref: ansible.playbook
     parameters:
-      cmd: "echo 'In process' {{ action_context.parent.execution_id }} {{ chain_input }} {{ chain_output }}"
-      #uuid: "{{ action_context.parent.execution_id }}"
-      #input: "{{ chain_input }}"
-      #output: "{{ chain_output }}"
+      playbook: "/opt/stackstorm/packs/pcgr/ansible/ansible/pcgr-run.yml" 
+      extra_vars:
+           - "pcgr.execution_id={{ action_context.parent.execution_id }}"
+           - "pcgr.input_vcf={{ chain_input }}"
+           - "pcgr.s3_vcf_bucket=umccr-pcgr"
+
     notify:
       on-success:
         routes:
-          - chatops
+          - umccr_slack
         message: "PCGR processing done"
       on-failure:
         routes:
-          - chatops
+          - umccr_slack
         message: "PCGR processing failed"
 #  - name: "down"
-#    ref: "pcgr.aws_down"
+#    ref: ansible.playbook
 #    parameters:
-#      #uuid: "{{ action_context.parent.execution_id }}"
+#      playbook: "/opt/stackstorm/packs/pcgr/ansible/ansible/aws-teardown.yml"
+#      extra_vars:
+#           - "pcgr_id={{ action_context.parent.execution_id }}"
 #    notify:
 #      on-success:
 #        routes:
-#          - chatops
+#          - umccr_slack
 #        message: "AWS instance up for PCGR"
 #      on-failure:
 #        routes:
-#          - chatops
+#          - umccr_slack
 #        message: "Something went wrong instantiating AWS"
 #    on-success: "submit_vcf"
 
