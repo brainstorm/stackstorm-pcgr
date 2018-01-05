@@ -7,10 +7,10 @@
   hostname:
     name: localhost
 
-- name: Create "{{ pcgr.mount }}" 
+- name: Create "{{ pcgr_mount }}" 
   become: true
   file:
-    path: "{{ pcgr.mount }}"
+    path: "{{ pcgr_mount }}"
     state: directory
     recurse: yes
     owner: ubuntu
@@ -40,7 +40,7 @@
 
 - name: Mount local work volume
   mount: 
-    path: "{{ pcgr.mount }}"
+    path: "{{ pcgr_mount }}"
     src: "{{ item.item }}"
     fstype: ext4 
     state: mounted
@@ -62,7 +62,7 @@
 #  become_user: root
 #  shell: while fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 1; done;
 
-# Trying target unattended-upgrades, works every time
+# Trying target unattended-upgrades instead? 
 - name: Wait for automatic system updates
   shell: while pgrep unattended; do sleep 10; done;
 
@@ -83,21 +83,15 @@
       - docker.io
       - python-docker
       - tabix
-      - htop
       - nfs-common
       - python-pip
       - python3-pip
       - python3-venv
 
-- name: Make sure vital python packages are installed system-wide
-  become: true
+- name: Make sure docker-py is installed
   pip:
-    name: "{{ item }}"
-    state: installed
-  with_items:
-      - docker-py
-      - toml
-      - awscli
+    name: docker-py
+    state: latest
 
 - name: Add SSH keys for UMCCR team
   authorized_key:
@@ -110,34 +104,34 @@
   become: true
   user: name=ubuntu groups=docker append=yes
 
-- name: Pull PCGR docker image for PCGR "{{ pcgr.docker_release }}"
+- name: Pull PCGR docker image for PCGR "{{ pcgr_release }}"
   become: true
   docker_image:
     name: sigven/pcgr
     state: present
-    tag: "{{ docker_release }}"
+    tag: "{{ pcgr_release }}"
 
-- name: Download and unpack PCGR software, release "{{ pcgr.release }}"
+- name: Download and unpack PCGR software, release "{{ pcgr_release }}"
   unarchive:
-    src: https://github.com/sigven/pcgr/archive/{{ pcgr.release }}.tar.gz
-    creates: "{{ pcgr.mount }}/pcgr-{{ pcgr.release }}"
-    dest: "{{ pcgr.mount }}"
+    src: https://github.com/sigven/pcgr/archive/{{ pcgr_release }}.tar.gz
+    creates: "{{ pcgr_mount }}/pcgr-{{ pcgr_release }}"
+    dest: "{{ pcgr_mount }}"
     remote_src: True
 
-- name: Give ubuntu rights to write on "{{ pcgr.mount }}/pcgr-{{ pcgr.release }}"
+- name: Give ubuntu rights to write on "{{ pcgr_mount }}/pcgr-{{ pcgr_release }}"
   become: true
   file:
-    path: "{{ pcgr.mount }}/pcgr-{{ pcgr.release }}"
+    path: "{{ pcgr_mount }}/pcgr-{{ pcgr_release }}"
     state: directory
     recurse: yes
     owner: ubuntu
     group: ubuntu
     mode: 0755
 
-- name: Creating default PCGR output directory on "{{ pcgr.mount }}/pcgr-{{ pcgr.release }}/output"
+- name: Creating default PCGR output directory on "{{ pcgr_mount }}/pcgr-{{ pcgr_release }}/output"
   become: true
   file:
-    path: "{{ pcgr.mount }}/pcgr-{{ pcgr.release }}/output"
+    path: "{{ pcgr_mount }}/pcgr-{{ pcgr_release }}/output"
     state: directory
     owner: ubuntu
     group: ubuntu
@@ -147,10 +141,10 @@
   become: false
   command: newgrp docker
 
-- name: "Symlink latest version to {{ pcgr.mount }}/pcgr"
+- name: "Symlink latest version to {{ pcgr_mount }}/pcgr"
   file:
-      src: "{{ pcgr.mount }}/pcgr-{{ pcgr.release }}"
-      dest: "{{ pcgr.mount }}/pcgr"
+      src: "{{ pcgr_mount }}/pcgr-{{ pcgr_release }}"
+      dest: "{{ pcgr_mount }}/pcgr"
       state: link
 
 - name: Setup local firewall
