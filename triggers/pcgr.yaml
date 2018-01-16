@@ -1,0 +1,4 @@
+---
+name: up
+pack: pcgr
+description: Trigger that brings up PCGR instance.

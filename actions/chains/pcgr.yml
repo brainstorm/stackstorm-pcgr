@@ -6,6 +6,7 @@ chain:
       playbook: "/opt/stackstorm/packs/pcgr/ansible/ansible/aws.yml"
       extra_vars:
            - "pcgr.execution_id={{ action_context.parent.execution_id }}"
+           - "ansible_python_interpreter=/opt/stackstorm/virtualenvs/ansible/bin/python"
     notify:
       on-success:
         routes:
@@ -14,41 +15,26 @@ chain:
       on-failure:
         routes:
           - umccr_slack
-        message: "Something went wrong instantiating PCGR on AWS"
-    on-success: "submit_vcf"
-  - name: "submit_vcf"
+        message: "Something went wrong instantiating PCGR on AWS and/or processing your sample"
+    #on-success: "submit_vcf"
+# XXX: on-success, wait for callback, notify and then go to down!
+
+  - name: "down"
     ref: ansible.playbook
     parameters:
-      playbook: "/opt/stackstorm/packs/pcgr/ansible/ansible/pcgr-run.yml" 
+      playbook: "/opt/stackstorm/packs/pcgr/ansible/ansible/aws-teardown.yml"
       extra_vars:
-           - "pcgr.execution_id={{ action_context.parent.execution_id }}"
-           - "pcgr.input_vcf={{ chain_input }}"
-           - "pcgr.s3_vcf_bucket=umccr-pcgr"
-
+           - "pcgr_id={{ action_context.parent.execution_id }}"
+           - "ansible_python_interpreter=/opt/stackstorm/virtualenvs/ansible/bin/python"
     notify:
       on-success:
         routes:
           - umccr_slack
-        message: "PCGR processing done"
+        message: "AWS instance up for PCGR"
       on-failure:
         routes:
           - umccr_slack
-        message: "PCGR processing failed"
-#  - name: "down"
-#    ref: ansible.playbook
-#    parameters:
-#      playbook: "/opt/stackstorm/packs/pcgr/ansible/ansible/aws-teardown.yml"
-#      extra_vars:
-#           - "pcgr_id={{ action_context.parent.execution_id }}"
-#    notify:
-#      on-success:
-#        routes:
-#          - umccr_slack
-#        message: "AWS instance up for PCGR"
-#      on-failure:
-#        routes:
-#          - umccr_slack
-#        message: "Something went wrong instantiating AWS"
-#    on-success: "submit_vcf"
+        message: "Something went wrong instantiating AWS"
+    #on-success: "submit_vcf"
 
 default: "up"
