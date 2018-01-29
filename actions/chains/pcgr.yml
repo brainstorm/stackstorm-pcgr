@@ -7,6 +7,7 @@ chain:
       extra_vars:
            - "pcgr.execution_id={{ action_context.parent.execution_id }}"
            - "ansible_python_interpreter=/opt/stackstorm/virtualenvs/ansible/bin/python"
+           - "inventory_file=/opt/stackstorm/packs/pcgr/ansible/ansible/inventory/aws/ec2.py"
     notify:
       on-success:
         routes:
@@ -26,6 +27,7 @@ chain:
       extra_vars:
            - "pcgr_id={{ action_context.parent.execution_id }}"
            - "ansible_python_interpreter=/opt/stackstorm/virtualenvs/ansible/bin/python"
+           - "inventory_file=/opt/stackstorm/packs/pcgr/ansible/ansible/inventory/aws/ec2.py"
     notify:
       on-success:
         routes:
@@ -34,7 +36,7 @@ chain:
       on-failure:
         routes:
           - umccr_slack
-        message: "Something went wrong instantiating AWS"
+        message: "Something went wrong tearing down the AWS instance"
     #on-success: "submit_vcf"
 
 default: "up"
