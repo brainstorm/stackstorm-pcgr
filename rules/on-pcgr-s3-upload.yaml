@@ -11,8 +11,6 @@ criteria:
       {}
 
 action:
-  ref: chatops.post_message
+  ref: pcgr.up
   parameters:
-    message: 'VCF file detected on s3://pcgr bucket'
-    channel: '#arteria-dev'
-#    channel: '#biobots'
+    vcf_filename: "{{trigger.fname}}"

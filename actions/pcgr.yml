@@ -9,20 +9,7 @@ entry_point: "chains/pcgr.yml"
 enabled: true
 
 parameters:
-  chain_input:
-    description: PCGR workflow input vcf entrypoint
+  vcf_filename:
+    description: Filename of the recently uploaded VCF file
     required: true
     type: string
-  chain_output:
-    description: PCGR workflow results
-    required: true
-    type: string
-    default: 's3://pcgr-results'
-
-
-
-notify:
-  on-complete:
-    message: "\"@arteria-dev: Action succeeded.\"" # XXX: does this work?
-    routes:
-      - "slack" # XXX: hubot? chatops?

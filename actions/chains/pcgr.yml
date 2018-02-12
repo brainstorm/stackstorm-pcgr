@@ -1,11 +1,16 @@
----
 chain:
+  - name: "vcf_in_s3_bucket"
+    ref: chatops.post_message
+    parameters:
+      message: 'VCF file {{ vcf_filename }} detected on s3://pcgr bucket'
+      channel: '#arteria-dev'
+    on-success: "up"
+
   - name: "up"
     ref: ansible.playbook
     parameters:
       playbook: "/opt/stackstorm/packs/pcgr/ansible/ansible/aws.yml"
       extra_vars:
-           - "pcgr.execution_id={{ action_context.parent.execution_id }}"
            - "ansible_python_interpreter=/opt/stackstorm/virtualenvs/ansible/bin/python"
            - "inventory_file=/opt/stackstorm/packs/pcgr/ansible/ansible/inventory/aws/ec2.py"
     notify:
@@ -25,7 +30,6 @@ chain:
     parameters:
       playbook: "/opt/stackstorm/packs/pcgr/ansible/ansible/aws-teardown.yml"
       extra_vars:
-           - "pcgr_id={{ action_context.parent.execution_id }}"
            - "ansible_python_interpreter=/opt/stackstorm/virtualenvs/ansible/bin/python"
            - "inventory_file=/opt/stackstorm/packs/pcgr/ansible/ansible/inventory/aws/ec2.py"
     notify:
@@ -39,4 +43,4 @@ chain:
         message: "Something went wrong tearing down the AWS instance"
     #on-success: "submit_vcf"
 
-default: "up"
+default: "vcf_in_s3_bucket"
