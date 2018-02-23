@@ -22,25 +22,5 @@ chain:
         routes:
           - umccr_slack
         message: "Something went wrong instantiating PCGR on AWS and/or processing your sample"
-    #on-success: "submit_vcf"
-# XXX: on-success, wait for callback, notify and then go to down!
-
-  - name: "down"
-    ref: ansible.playbook
-    parameters:
-      playbook: "/opt/stackstorm/packs/pcgr/ansible/ansible/aws-teardown.yml"
-      extra_vars:
-           - "ansible_python_interpreter=/opt/stackstorm/virtualenvs/ansible/bin/python"
-           - "inventory_file=/opt/stackstorm/packs/pcgr/ansible/ansible/inventory/aws/ec2.py"
-    notify:
-      on-success:
-        routes:
-          - umccr_slack
-        message: "AWS instance up for PCGR"
-      on-failure:
-        routes:
-          - umccr_slack
-        message: "Something went wrong tearing down the AWS instance"
-    #on-success: "submit_vcf"
 
 default: "vcf_in_s3_bucket"
