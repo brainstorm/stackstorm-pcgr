@@ -3,6 +3,10 @@
   debug:
     msg: "{{ ansible_mounts }}"
 
+- name: set timezone
+  timezone:
+    name: "{{ timezone }}"
+
 - name: Setup hostname to avoid unable to resolve errors
   hostname:
     name: localhost
@@ -128,6 +132,11 @@
     creates: "{{ pcgr.mount }}/pcgr-{{ pcgr.release }}"
     dest: "{{ pcgr.mount }}"
     remote_src: True
+
+- name: Copy the AWS SQS file consumer daemon
+  copy:
+    src: files/sqs_consumer.py
+    dest: "{{ pcgr.mount }}/pcgr-{{ pcgr.release }}"
 
 - name: Give "{{ os_user }}" rights to write on "{{ pcgr.mount }}/pcgr-{{ pcgr.release }}"
   become: true
