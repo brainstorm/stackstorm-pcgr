@@ -39,7 +39,7 @@
     dev: "{{ item.item }}"
   with_items: "{{ volume_device.results }}"
   when:
-      - not item | skipped
+      - not item is skipped
       - item.stat.exists
 
 - name: Mount local work volume
@@ -50,7 +50,7 @@
     state: mounted
   with_items: "{{ volume_device.results }}"
   when:
-      - not item | skipped
+      - not item is skipped
       - item.stat.exists
 
 # Does not work since the lock file never gets removed, actually
@@ -79,6 +79,7 @@
     update_cache: yes
   with_items:
       - git
+      - aptitude
       - unzip
       - wget
       - tar
@@ -93,15 +94,23 @@
       - python3-pip
       - python3-venv
 
-- name: Make sure vital python packages are installed system-wide
+# XXX Debian specific, the default pkg does not support this
+- name: Upgrade all the current packages to the latest version
+  apt:
+    name: "*"
+    state: latest
+    autoclean: yes
+
+- name: Make sure vital python packages are installed on a python3 venv
   become: true
   pip:
     name: "{{ item }}"
-    state: latest 
+    virtualenv: "/mnt/work/pcgr-{{ pcgr.number_release }}/venv"
+    state: latest
   with_items:
       - docker-py
       - toml
-      - boto
+      - boto3
       - awscli
 
 - name: Add SSH keys for UMCCR team
