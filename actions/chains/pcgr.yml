@@ -11,8 +11,8 @@ chain:
     parameters:
       playbook: "/opt/stackstorm/packs/pcgr/ansible/ansible/aws.yml"
       extra_vars:
-           - 'ansible_python_interpreter=/opt/stackstorm/virtualenvs/ansible/bin/python'
-           - 'inventory-file=/opt/stackstorm/packs/pcgr/ansible/ansible/inventory/aws/ec2.py'
+           - '"ansible_python_interpreter=/opt/stackstorm/virtualenvs/ansible/bin/python"'
+           - '"inventory-file=/opt/stackstorm/packs/pcgr/ansible/ansible/inventory/aws/ec2.py"'
     notify:
       on-success:
         routes:
