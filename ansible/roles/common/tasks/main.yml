@@ -105,7 +105,7 @@
   become: true
   pip:
     name: "{{ item }}"
-    virtualenv: "/mnt/work/pcgr-{{ pcgr.number_release }}/venv"
+    virtualenv: "{{ pcgr.mount }}/pcgr-{{ pcgr.number_release }}/venv"
     virtualenv_command: /usr/bin/python3 -m venv
     state: latest
   with_items:
@@ -175,6 +175,17 @@
       src: "{{ pcgr.mount }}/pcgr-{{ pcgr.number_release }}"
       dest: "{{ pcgr.mount }}/pcgr"
       state: link
+
+- name: "Setup systemd service file for PCGR consumer"
+  become: true
+  template:
+    src: files/pcgr.service.j2
+    dest: /etc/systemd/system/pcgr.service
+    owner: root
+    group: root
+    mode: 0600
+    validate: sudo systemctl --system daemon-reload
+    backup: no
 
 - name: Setup local firewall
   ufw:
