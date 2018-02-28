@@ -18,6 +18,7 @@ import logging
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
+# To console
 ch = logging.StreamHandler(sys.stdout)
 ch.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -36,8 +37,6 @@ ec2 = boto3.resource('ec2', region_name=REGION)
 s3 = boto3.resource('s3', region_name=REGION)
 sqs = boto3.resource('sqs', region_name=REGION)
 
-# File extensions we care for
-exts = [".tsv", ".log", ".tar.gz", ".vcf.gz", ".tbi", ".toml"]
 
 # Create SQS queue if not found
 try:
@@ -172,6 +171,14 @@ def main():
             sample_file = message.body
             log.info("[Main] Sample {sample} is ready to process".format(sample=sample_file))
             sample_name = splitext_plus(sample_file)[0] # get rid of .tar.gz extension
+
+            # Change to output folder
+            os.chdir(OUTPUTS)
+
+            # Log to individual file
+            fh = logging.FileHandler("{}.log".format(sample_file))
+            fh.setLevel(logging.INFO)
+            log.addHandler(fh)
             
             try:
                 fetch(sample_file)
@@ -189,6 +196,9 @@ def main():
 
             log.info("[Main] Sample {sample} processed, deleting from queue".format(sample=sample_file))
             message.delete()
+
+            # Free up the log handler for next sample
+            log.removeHandler(fh)
 
 if __name__ == "__main__":
     main()
