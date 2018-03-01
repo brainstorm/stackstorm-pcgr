@@ -8,6 +8,7 @@ import shutil
 import tarfile
 import pathlib
 import subprocess
+from contextlib import contextmanager
 import http.client
 
 import boto3
@@ -49,8 +50,12 @@ except:
 def process(sample):
     output_dir = "{}-output".format(sample)
 
-    log.info("Output dir for processing is: {}".format(output_dir))
-    os.mkdir(output_dir)
+    try:
+        log.info("Output dir for processing is: {}".format(output_dir))
+        os.mkdir(output_dir)
+    except FileExistsError:
+        cleanup(sample)
+        os.mkdir(output_dir)
 
     cmdline = "/mnt/pcgr/pcgr.py --force_overwrite --input_vcf {vcf}.vcf.gz {somatic_flags} /mnt/pcgr {output} {conf}.toml {sample}"
 
@@ -92,21 +97,24 @@ def untar(sample):
 def upload(sample, log_fh):
     log.info("Tarring and uploading PCGR outputs tarball to S3 on bucket s3://{bucket}".format(bucket=BUCKET))
 
-    sample_output = "{sample}-output.tar.gz".format(sample=sample)
+    sample_output = "{}-output.tar.gz".format(sample)
+    output_dir = "{}/{}-output".format(OUTPUTS, sample)
+    logfile = "{}.log".format(sample)
 
-    with os.chdir("{out}/{sample}-output".format(OUTPUTS, sample)):
-        with tarfile.open(sample_output, "w:gz") as tar:
-            outputs = pathlib.Path(OUTPUTS).glob('*')
-            for fname in outputs:
-                log.info("Tarring up {fname}".format(fname=fname))
-                tar.add("{fname}".format(fname=fname))
+    with tarfile.open(sample_output, "w:gz") as tar:
+        # XXX: fix this ugly path manipulation and use pathlib
+        outputs = pathlib.Path(output_dir).glob('*')
 
-        # Free up the log handler for next sample
+        for fname in outputs:
+            fname = str(fname).replace("{}/".format(OUTPUTS), '')
+            print("Tarring up {}".format(fname))
+            tar.add("{}".format(fname))
+
+        # Tar and free up the log handler for the next sample
+        tar.add(logfile)
         log.removeHandler(log_fh)
-        shutil.copy2("{out}/{sample}.log".format(out=OUTPUTS, sample=sample), 
-                     "{out}/{sample}-output".format(out=OUTPUTS, sample=sample))
 
-        s3.meta.client.upload_file(sample_output, BUCKET, sample_output)
+    s3.meta.client.upload_file(sample_output, BUCKET, sample_output)
 
 def cleanup(sample):
     log.info("Cleaning up for next run (if any)...")
@@ -152,6 +160,16 @@ def get_instance_id():
     
     return instance_id
 
+@contextmanager
+def chdir(path):
+    """ path: pathlib.Path() object
+    """
+    pwd = str(pathlib.Path().absolute())
+    if not path.is_dir():
+        path = path.parent
+    os.chdir(str(path))
+    yield path.absolute()
+    os.chdir(pwd)
 
 def main():
     retries = MAX_RETRIES
@@ -175,7 +193,7 @@ def main():
             os.chdir(OUTPUTS)
 
             # Log to individual file
-            fh = logging.FileHandler("{}.log".format(sample_file))
+            fh = logging.FileHandler("{}.log".format(sample_name))
             fh.setLevel(logging.INFO)
             log.addHandler(fh)
             
@@ -185,8 +203,6 @@ def main():
 
                 process(sample_name)
                 upload(sample_name, fh)
-
-
 
                 cleanup(sample_name)
 
