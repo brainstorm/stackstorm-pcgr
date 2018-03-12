@@ -1,0 +1,19 @@
+---
+name: output_generated
+pack: pcgr
+description: Rule to act on pcgr generating the output files
+enabled: false
+
+trigger:
+  type: pcgr.up
+
+criteria:
+      trigger.task:
+        type: "iequals"
+        pattern: "output_generated"
+
+action:
+  ref: chatops.post_message
+      parameters:
+        message: 'PCGR done! Collect your results here: `aws s3 cp s3://pcgr/{{ trigger.fname }}`'
+        channel: '#biobots'

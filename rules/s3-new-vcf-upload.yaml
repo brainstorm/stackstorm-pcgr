@@ -1,0 +1,18 @@
+---
+name: s3_new_vcf_upload
+pack: pcgr
+description: Rule to act on new VCF files uploaded to S3 bucket
+enabled: false
+
+trigger:
+  type: pcgr.up
+
+criteria:
+      trigger.task:
+        type: "iequals"
+        pattern: "instantiate"
+
+action:
+  ref: pcgr.up
+  parameters:
+    vcf_filename: "{{trigger.fname}}"
