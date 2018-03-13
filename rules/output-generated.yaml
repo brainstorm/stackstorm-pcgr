@@ -14,6 +14,6 @@ criteria:
 
 action:
   ref: chatops.post_message
-      parameters:
-        message: "PCGR done! Collect your results here: `aws s3 cp s3://pcgr/{{ trigger.fname }}`"
-        channel: '#biobots'
+  parameters:
+    message: "PCGR done! Collect your results here: `aws s3 cp s3://pcgr/{{ trigger.fname }}`"
+    channel: '#biobots'
