@@ -13,6 +13,9 @@ chain:
       extra_vars:
            - 'ansible_python_interpreter=/opt/stackstorm/virtualenvs/ansible/bin/python'
            - 'inventory-file=/opt/stackstorm/packs/pcgr/ansible/ansible/inventory/ec2.py'
+           - 'vcf_bucket=umccr-pcgr-dev'
+           - 'ami=ami-06b6187d6441a6dbf'
+           - 'aws.instance-profile=pcgr_instance_profile_dev'
     notify:
       on-success:
         routes:
