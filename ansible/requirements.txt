@@ -1,4 +1,0 @@
-boto
-ansible
-awscli
-shade

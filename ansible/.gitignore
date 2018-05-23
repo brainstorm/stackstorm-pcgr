@@ -1,7 +1,0 @@
-*.retry
-*.tfstate
-*.tfstate.backup
-*.log
-.vscode
-.vagrant
-.DS_Store
