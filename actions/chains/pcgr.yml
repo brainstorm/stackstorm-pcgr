@@ -2,7 +2,7 @@ chain:
   - name: "vcf_in_s3_bucket"
     ref: chatops.post_message
     parameters:
-      message: 'VCF file {{ vcf_filename }} detected on s3://pcgr bucket'
+      message: "VCF file {{ vcf_filename }} detected on s3://{{ st2kv.system.pcgr.bucket }} bucket"
       channel: "{{ st2kv.system.slack.channel }}"
     on-success: "up"
 
