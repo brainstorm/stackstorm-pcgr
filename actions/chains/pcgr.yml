@@ -3,7 +3,7 @@ chain:
     ref: chatops.post_message
     parameters:
       message: 'VCF file {{ vcf_filename }} detected on s3://pcgr bucket'
-      channel: '#arteria-dev'
+      channel: "{{ st2kv.system.slack.channel }}"
     on-success: "up"
 
   - name: "up"
