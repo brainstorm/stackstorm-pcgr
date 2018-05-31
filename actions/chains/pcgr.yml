@@ -13,9 +13,9 @@ chain:
       extra_vars:
            - 'ansible_python_interpreter=/opt/stackstorm/virtualenvs/ansible/bin/python'
            - 'inventory-file=/opt/stackstorm/packs/pcgr/ansible/ansible/inventory/aws/ec2.py'
-           - "aws.vcf_bucket={{ st2kv.system.pcgr.bucket }}"
-           - 'aws.image_id={{ st2kv.system.pcgr.ami }}'
-           - 'aws.instance_profile_name={{ st2kv.system.pcgr.instance_profile }}'
+           - 'vcf_bucket={{ st2kv.system.pcgr.bucket }}'
+           - 'image_id={{ st2kv.system.pcgr.ami }}'
+           - 'instance_profile_name={{ st2kv.system.pcgr.instance_profile }}'
     notify:
       on-success:
         routes:
