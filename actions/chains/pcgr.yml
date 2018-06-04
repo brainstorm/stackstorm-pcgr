@@ -15,6 +15,7 @@ chain:
            - 'inventory-file=/opt/stackstorm/packs/pcgr/ansible/ansible/inventory/aws/ec2.py'
            - 'image_id={{ st2kv.system.pcgr.ami }}'
            - 'instance_profile_name={{ st2kv.system.pcgr.instance_profile }}'
+           - 'pcgr_instance_user_data="{{ st2kv.system.pcgr.userdata }}"'
     notify:
       on-success:
         routes:
